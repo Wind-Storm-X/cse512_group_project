@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  # Downtown Library Node
+  downtown-library:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: downtown-library
+    hostname: downtown-library
+    command: start --insecure --join=downtown-library,north-library,west-library
+    ports:
+      - "26257:26257"  # Database port
+      - "8080:8080"    # Web UI port
+    networks:
+      - library-network
+    volumes:
+      - downtown-data:/cockroach/cockroach-data
+
+  # North Library Node
+  north-library:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: north-library
+    hostname: north-library
+    command: start --insecure --join=downtown-library,north-library,west-library
+    ports:
+      - "26258:26257"  # Database port (different external port)
+      - "8081:8080"    # Web UI port (different external port)
+    networks:
+      - library-network
+    volumes:
+      - north-data:/cockroach/cockroach-data
+
+  # West Library Node
+  west-library:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: west-library
+    hostname: west-library
+    command: start --insecure --join=downtown-library,north-library,west-library
+    ports:
+      - "26259:26257"  # Database port (different external port)
+      - "8082:8080"    # Web UI port (different external port)
+    networks:
+      - library-network
+    volumes:
+      - west-data:/cockroach/cockroach-data
+
+  # Cluster initialization (runs once then exits)
+  init-cluster:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: init-cluster
+    command: init --insecure --host=downtown-library
+    networks:
+      - library-network
+    depends_on:
+      - downtown-library
+      - north-library
+      - west-library
+
+networks:
+  library-network:
+    driver: bridge
+
+volumes:
+  downtown-data:
+  north-data:
+  west-data:
