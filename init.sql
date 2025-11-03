@@ -36,6 +36,20 @@ CREATE TABLE IF NOT EXISTS books_C (
     checked_out BOOLEAN
 );
 
-/*INSERT INTO authors (name, birth_year) VALUES ('George Orwell', 1903);
-INSERT INTO books (title, author_id, published_year, genre)
-SELECT '1984', id, 1949, 'Dystopian' FROM authors WHERE name = 'George Orwell';*/
+CREATE TABLE IF NOT EXISTS patrons_A (
+    card_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name STRING,
+    last_name STRING
+);
+
+CREATE TABLE IF NOT EXISTS patrons_B (
+    card_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name STRING,
+    last_name STRING
+);
+
+CREATE TABLE IF NOT EXISTS patrons_C (
+    card_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name STRING,
+    last_name STRING
+);
