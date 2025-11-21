@@ -2,35 +2,57 @@
 from router import route_query
 from executor import execute_on_node
 from optimizer import optimize
+import re
+
+def read_sql(prompt="SQL> "):
+    print(prompt, end="")
+    lines = []
+    while True:
+        line = input()
+        if line.strip().endswith(";"):
+            lines.append(line.strip()[:-1])
+            break
+        lines.append(line)
+    return " ".join(lines)
+
+def extract_limit(sql: str) -> int:
+    # Extract LIMIT from SQL, return None if not present
+    m = re.search(r"limit\s+(\d+)", sql, re.IGNORECASE)
+    return int(m.group(1)) if m else None
 
 def main():
-    print("=== Coordinator V0.1 ===")
+    print("=== Coordinator ===")
 
     while True:
-        sql = input("\nSQL> ").strip()
+        sql = read_sql()
         if sql.lower() == "exit":
             break
         if not sql:
             continue
 
-        # 1. Optimize SQL (currently no-op)
+        # 1. Optimize SQL
         optimized_sql = optimize(sql)
 
-        # 2. Decide which node to send the query to
-        node = route_query(optimized_sql)
-        if node is None:
-            print("→ Error: cannot determine target node from SQL (unknown or unsupported table).")
-            continue
-        print(f"→ Routed to: {node}")
+        # 2. Determine target nodes and possibly modified SQL for each node
+        nodes, sqls = route_query(optimized_sql)
+        print(f"→ Routed to nodes: {nodes}")
 
-        # 3. Execute SQL with error handling
-        try:
-            result = execute_on_node(node, optimized_sql)
-            print("→ Result:")
-            print(result)
-        except Exception as e:
-            print("→ Execution error (caught):", e)
-            # keep loop alive for next command
+        # 3. Execute on each node
+        results = []
+        for node, actual_sql in zip(nodes, sqls):
+            try:
+                res = execute_on_node(node, actual_sql)
+                results.extend(res)  # merge row lists
+            except Exception as e:
+                print(f"→ Execution error on {node}: {e}")
+
+        # 4. Enforce final LIMIT at Coordinator level
+        user_limit = extract_limit(optimized_sql) or 100  # default LIMIT if missing
+        final_results = results[:user_limit]
+
+        # 5. Print final merged result
+        print("→ Merged Result:")
+        print(final_results)
 
 if __name__ == "__main__":
     main()
