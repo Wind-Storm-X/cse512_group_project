@@ -1,3 +1,5 @@
+To download the library used by the optimizer, run `pip3 install sqlglot`
+
 To start the cluster, open powershell in the folder you saved the .yml file and run:
 `docker-compose up -d`
 
