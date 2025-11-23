@@ -1,6 +1,6 @@
 # coordinator/optimizer.py
 import re
-from sqlglot.optimizer import optimize
+from sqlglot.optimizer import optimize as sqlglot_optimize
 
 library_schema = {
     "patrons_A": {
@@ -63,9 +63,9 @@ def optimize(sql: str) -> str:
     if not re.search(r'\blimit\b', sql, re.IGNORECASE):
         sql += f" LIMIT {DEFAULT_LIMIT}"
 
-
-    optimized_expression = optimize(sql, schema=library_schema, dialect="cockroachdb")
+    # sqlglot doesn't have a cockroachdb dialect, but cockroachdb is highly compatible with postgres
+    optimized_expression = sqlglot_optimize(sql, schema=library_schema, dialect="postgres")
     optimized_sql = optimized_expression.sql(pretty=True)
 
-    
+    # SELECT * FROM books_C;
     return optimized_sql
