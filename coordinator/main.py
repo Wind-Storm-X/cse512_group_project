@@ -2,6 +2,7 @@
 from router import route_query
 from executor import execute_on_node
 from optimizer import optimize
+from heartbeat import start_heartbeat, node_status
 import re
 
 def read_sql(prompt="SQL> "):
@@ -22,11 +23,41 @@ def extract_limit(sql: str) -> int:
 
 def main():
     print("=== Coordinator ===")
+    print("Note: Enter \"STATUS;\" to check each node's status.")
+    start_heartbeat()
 
     while True:
         sql = read_sql()
         if sql.lower() == "exit":
             break
+        if sql.lower() == "status":
+            print("\nNode Status")
+            print("-----------------------------------")
+
+            for node, s in node_status.items():
+                status = "ALIVE" if s["alive"] else "DEAD"
+                latency = f"{s['latency']:.1f} ms" if s["latency"] else "-"
+                last_ok = s["last_ok"] if s["last_ok"] else "-"
+                
+                # Simplify error message
+                err = s["error"]
+                if err:
+                    err = err.strip().split("\n")[0]  # Keep the first line
+                else:
+                    err = "-"
+
+                print(f"Node: {node}")
+                print(f"  Status  : {status}")
+                print(f"  Latency : {latency}")
+                print(f"  Last OK : {last_ok}")
+                print(f"  Error   : {err}")
+                print(f"  Trend   : {s['trend']}")
+                print(f"  Fail#   : {s['fail_count']}")
+                print(f"  Success#: {s['success_count']}")
+                print()
+
+            continue
+
         if not sql:
             continue
 
