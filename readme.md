@@ -23,7 +23,7 @@ You can also run:
 `docker exec -it downtown-library ./cockroach sql --insecure`
 in powershell to manually use SQL.
 
-To start coordinator service, go to the `coordinator` directory and run `python3 main.py`.
+To start coordinator service, go to the `coordinator` directory and run `python main.py` or `python -m coordinator.main`. To exit the service, enter `EXIT;`.
 
 The heartbeat service will alert the user when a node is crashed or recovered. You can also enter `STATUS;` to check node status.
 
