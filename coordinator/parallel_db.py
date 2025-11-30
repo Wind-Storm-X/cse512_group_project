@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from .executor import execute_on_node 
+from coordinator.executor import execute_on_node 
 
 # Map aliases (A/B/C) to actual config node keys
 ALIAS = {

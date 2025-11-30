@@ -1,7 +1,7 @@
 # coordinator/executor.py
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from .config import NODES
+from coordinator.config import NODES
 
 def execute_on_node(node_key, sql):
     if not node_key:

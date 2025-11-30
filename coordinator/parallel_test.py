@@ -1,4 +1,4 @@
-from .parallel_db import execute_in_parallel
+from coordinator.parallel_db import execute_in_parallel
 import time
 
 def main():

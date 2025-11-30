@@ -1,8 +1,8 @@
 # coordinator/main.py
-from router import route_query
-from executor import execute_on_node
-from optimizer import optimize
-from heartbeat import start_heartbeat, node_status
+from coordinator.router import route_query
+from coordinator.executor import execute_on_node
+from coordinator.optimizer import optimize
+from coordinator.heartbeat import start_heartbeat, node_status
 import re
 
 def read_sql(prompt="SQL> "):
@@ -20,6 +20,14 @@ def extract_limit(sql: str) -> int:
     # Extract LIMIT from SQL, return None if not present
     m = re.search(r"limit\s+(\d+)", sql, re.IGNORECASE)
     return int(m.group(1)) if m else None
+
+# def heartbeat(node):
+#     # Simple heartbeat: try a lightweight query.
+#     try:
+#         execute_on_node(node, "SELECT 1")
+#         return True
+#     except Exception:
+#         return False
 
 def main():
     print("=== Coordinator ===")
@@ -71,6 +79,9 @@ def main():
         # 3. Execute on each node
         results = []
         for node, actual_sql in zip(nodes, sqls):
+            # if not heartbeat(node):
+            #     print(f"→ WARNING: Node {node} unreachable. Skipping.")
+            #     continue
             try:
                 res = execute_on_node(node, actual_sql)
                 results.extend(res)  # merge row lists

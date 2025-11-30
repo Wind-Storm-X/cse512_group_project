@@ -2,7 +2,7 @@
 
 import time
 import threading
-from executor import execute_on_node
+from coordinator.executor import execute_on_node
 import sys
 
 HEARTBEAT_INTERVAL = 5  # seconds

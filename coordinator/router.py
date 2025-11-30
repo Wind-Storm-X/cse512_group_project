@@ -1,6 +1,6 @@
 # coordinator/router.py
-from parser import extract_table
-from heartbeat import node_status
+from coordinator.parser import extract_table
+from coordinator.heartbeat import node_status
 
 BRANCH_MAP = {
     "_a": ["node1"],
