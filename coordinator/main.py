@@ -21,13 +21,30 @@ def extract_limit(sql: str) -> int:
     m = re.search(r"limit\s+(\d+)", sql, re.IGNORECASE)
     return int(m.group(1)) if m else None
 
-# def heartbeat(node):
-#     # Simple heartbeat: try a lightweight query.
-#     try:
-#         execute_on_node(node, "SELECT 1")
-#         return True
-#     except Exception:
-#         return False
+def print_table(rows):
+    '''Output Formatter'''
+    if not rows:
+        print("(no results)")
+        return
+
+    # Convert RealDictRow to dictionaries
+    rows = [dict(r) for r in rows]
+
+    # Extract columns
+    columns = list(rows[0].keys())
+
+    # Compute max width for each column
+    col_widths = {col: max(len(col), *(len(str(r[col])) for r in rows)) for col in columns}
+
+    # Header
+    header = " | ".join(col.ljust(col_widths[col]) for col in columns)
+    print(header)
+    print("-" * len(header))
+
+    # Rows
+    for r in rows:
+        line = " | ".join(str(r[col]).ljust(col_widths[col]) for col in columns)
+        print(line)
 
 def main():
     print("=== Coordinator ===")
@@ -69,32 +86,29 @@ def main():
         if not sql:
             continue
 
-        # 1. Optimize SQL
+        # Optimize SQL
         optimized_sql = optimize(sql)
 
-        # 2. Determine target nodes and possibly modified SQL for each node
+        # Determine target nodes and possibly modified SQL for each node
         nodes, sqls = route_query(optimized_sql)
         print(f"→ Routed to nodes: {nodes}")
 
-        # 3. Execute on each node
+        # Execute on each node
         results = []
         for node, actual_sql in zip(nodes, sqls):
-            # if not heartbeat(node):
-            #     print(f"→ WARNING: Node {node} unreachable. Skipping.")
-            #     continue
             try:
                 res = execute_on_node(node, actual_sql)
                 results.extend(res)  # merge row lists
             except Exception as e:
                 print(f"→ Execution error on {node}: {e}")
 
-        # 4. Enforce final LIMIT at Coordinator level
+        # Enforce final LIMIT at Coordinator level
         user_limit = extract_limit(optimized_sql) or 100  # default LIMIT if missing
         final_results = results[:user_limit]
 
-        # 5. Print final merged result
+        # Print final merged result
         print("→ Merged Result:")
-        print(final_results)
+        print_table(final_results)
 
 if __name__ == "__main__":
     main()
