@@ -87,11 +87,15 @@ def main():
             continue
 
         # Optimize SQL
-        optimized_sql = optimize(sql)
+        # optimized_sql = optimize(sql)
 
         # Determine target nodes and possibly modified SQL for each node
         nodes, sqls = route_query(optimized_sql)
         print(f"→ Routed to nodes: {nodes}")
+
+        # Optimize queries after routing
+        for q in sqls:
+            q = optimize(q)
 
         # Execute on each node
         results = []
