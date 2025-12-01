@@ -73,8 +73,12 @@ def optimize(sql: str) -> str:
     if sql.endswith(";"):
         sql = sql[:-1]
 
+    # check SQL type
+    sql_lower = sql.lower()
+    is_select = sql_lower.startswith("select")
+
     # Add a default LIMIT if not provided
-    if not re.search(r'\blimit\b', sql, re.IGNORECASE):
+    if is_select and not re.search(r'\blimit\b', sql, re.IGNORECASE):
         sql += f" LIMIT {DEFAULT_LIMIT}"
 
     # sqlglot doesn't have a cockroachdb dialect, but cockroachdb is highly compatible with postgres

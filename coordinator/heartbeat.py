@@ -69,7 +69,7 @@ def heartbeat_loop():
 
                 # ALIVE → DEAD transition
                 if previous_state[node] is True and initialized:
-                    safe_alert(f"{node} just went DOWN! error={msg}")
+                    safe_alert(f"{node} just went DOWN! error={e}")
 
                 previous_state[node] = False
 
