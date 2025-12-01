@@ -18,6 +18,11 @@ library_schema = {
         "first_name": "STRING",
         "last_name": "STRING",
     },
+    "patrons": {
+        "card_id": "UUID",
+        "first_name": "STRING",
+        "last_name": "STRING",
+    },
     "books_A": {
         "library_id": "UUID",
         "isbn": "INT",
@@ -37,6 +42,15 @@ library_schema = {
         "patron_checked_out": "UUID",
     },
     "books_C": {
+        "library_id": "UUID",
+        "isbn": "INT",
+        "book_name": "STRING",
+        "book_author_fn": "STRING",
+        "book_author_ln": "STRING",
+        "checked_out": "BOOLEAN",
+        "patron_checked_out": "UUID",
+    },
+    "books": {
         "library_id": "UUID",
         "isbn": "INT",
         "book_name": "STRING",
