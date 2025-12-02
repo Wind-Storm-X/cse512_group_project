@@ -4,6 +4,7 @@ from coordinator.executor import execute_on_node
 from coordinator.optimizer import optimize
 from coordinator.heartbeat import start_heartbeat, node_status
 import re
+from sqlglot.errors import ParseError
 
 def read_sql(prompt="SQL> "):
     print(prompt, end="")
@@ -92,7 +93,13 @@ def main():
         # Route (this returns nodes list and sql list; nodes may be equal length >1)
         try:
             nodes, sqls = route_query(sql)
-            optimized_sqls = [optimize(q) for q in sqls]
+            optimized_sqls = []
+            for q in sqls:
+                try:
+                    optimized_sqls.append(optimize(q))
+                except ParseError as pe:
+                    print(f"→ SQL syntax error (optimizer): {pe}")
+                    optimized_sqls.append(q)
         except ValueError as e:
             print(f"→ Query error: {e}")
             continue  # skip this query, allow user to continue
