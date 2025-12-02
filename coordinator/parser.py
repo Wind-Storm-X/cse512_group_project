@@ -1,37 +1,26 @@
-# # coordinator/parser.py
-# import re
-
-# def extract_table(sql: str):
-#     """
-#     Extract the table name from an SQL query.
-#     Example:
-#         SELECT * FROM books_A LIMIT 3;
-#     Returns:
-#         "books_a"
-#     """
-#     if not sql:
-#         return None
-#     m = re.search(r"from\s+([a-zA-Z0-9_]+)", sql, re.IGNORECASE)
-#     if not m:
-#         return None
-#     return m.group(1).lower()
-
-
 # coordinator/parser.py
 import re
 
-def extract_table(sql: str) -> str:
+LOGICAL_TABLES = ("patrons", "books")
+
+def extract_logical_tables(sql: str, logicals=LOGICAL_TABLES):
     """
-    Extract the table name from SQL.
-    Handles:
-      - INSERT INTO table_name ...
-      - SELECT ... FROM table_name ...
-      - DELETE FROM table_name ...
-    Returns table name as it appears in SQL, including suffix (_A/_B/_C)
+    Return all logical tables (patrons / books) that appear in the SQL.
+    Does NOT match physical tables like patrons_A or books_C.
     """
-    sql = sql.strip().rstrip(";")
-    pattern = r"(?:INSERT\s+INTO|DELETE\s+FROM|FROM)\s+([a-zA-Z_][a-zA-Z0-9_]*)"
-    match = re.search(pattern, sql, re.IGNORECASE)
-    if match:
-        return match.group(1)
-    return None
+    sql_low = sql.lower()
+    found = []
+
+    for t in logicals:
+        # Match only word boundaries to avoid false positives
+        if re.search(rf"\b{t}\b", sql_low):
+            found.append(t)
+
+    return found
+
+
+def contains_join(sql: str):
+    """
+    Returns True if the SQL contains a JOIN clause.
+    """
+    return re.search(r"\bJOIN\b", sql, re.IGNORECASE) is not None
