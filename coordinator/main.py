@@ -87,9 +87,6 @@ def main():
         if not sql:
             continue
 
-        # Optimize SQL (if you still want optimizer)
-        # optimized_sql = optimize(sql)
-
         # Route (this returns nodes list and sql list; nodes may be equal length >1)
         try:
             nodes, sqls = route_query(sql)
